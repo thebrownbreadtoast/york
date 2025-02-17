@@ -42,7 +42,6 @@ def handle_updates():
     return
 
 def check_for_new_chapter():
-    import ipdb;ipdb.set_trace()
     db_conn = VegapunkDB()
 
     token = os.getenv("BOT_TOKEN")
@@ -68,5 +67,7 @@ def check_for_new_chapter():
         msg = f"Hi @{user[1]}! A new chapter has been released: {chapter_title}.\n\nRead it here: {latest_chapter_link}"
 
         req.post(f"https://api.telegram.org/bot{token}/sendMessage", json={"chat_id": user[2], "text": msg})
+    
+    db_conn.add_chapter(chapter_id, chapter_title)
     
     return
