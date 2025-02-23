@@ -1,15 +1,27 @@
+#!/Users/akshay.dadwal/work/vegapunk6969_bot/env/bin/python
+
+import logging
 import os
 import requests as req
+
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 from db import VegapunkDB
 
 
-load_dotenv()
+load_dotenv("/Users/akshay.dadwal/work/vegapunk6969_bot/.env")
+
+
+logger = logging.getLogger(__name__)
 
 
 def handle_updates():
+    logger.info("Processing Telegram bot events...")
+
     db_conn = VegapunkDB()
+
+    offset = db_conn.get_offset()[1]
 
     token = os.getenv("BOT_TOKEN")
 
@@ -21,11 +33,20 @@ def handle_updates():
     response = req.get(url)
 
     if response.status_code != 200:
+        logger.error("Failed to fetch bot events from Telegram.")
+
         return
 
     updates = response.json()["result"]
 
     for update in updates:
+        timestamp = update["message"]["date"]
+
+        if offset > timestamp:
+            logger.warning(f"Skipping old event | {update}")
+
+            continue
+
         username = update["message"]["chat"]["username"]
         chat_id = update["message"]["chat"]["id"]
 
@@ -34,40 +55,55 @@ def handle_updates():
         match command:
             case "/notify":
                 db_conn.add_user(username, chat_id)
+
+                logger.info(f"User added to notification list. | {update}")
             case "/stop":
                 db_conn.remove_user(username, chat_id)
+
+                logger.info(f"User removed from notification list. | {update}")
             case _:
+                logger.warning(f"Unknown command event. | {update}")
+
                 pass
     
+    db_conn.add_or_update_offset()
+
+    logger.info(f"Processed new Telegram bot events and updated offset_timestamp to {offset}.")
+
     return
 
 def check_for_new_chapter():
+    logger.info("Checking for new chapter...")
+
     db_conn = VegapunkDB()
 
     token = os.getenv("BOT_TOKEN")
 
     last_chapter_id = db_conn.get_last_chapter()[1]
 
-    latest_chapter_api = f"https://api.api-onepiece.com/v2/chapters/en/{last_chapter_id + 1}"
-    latest_chapter_link = f"https://w12.read-onepiece.net/manga/one-piece-chapter-{last_chapter_id + 1}/"
+    latest_chapter_link = f"https://read-onepiece.net/manga/one-piece-chapter-{last_chapter_id + 1}/"
 
-    response = req.get(latest_chapter_api)
+    response = req.get(latest_chapter_link)
 
     if response.status_code != 200:
-        return
-    
-    chapter_response = response.json()
+        logger.info("No new chapter found.")
 
-    chapter_id = chapter_response["id"]
-    chapter_title = chapter_response["title"]
+        return
 
     existing_users = db_conn.get_users()
 
     for user in existing_users:
-        msg = f"Hi @{user[1]}! A new chapter has been released: {chapter_title}.\n\nRead it here: {latest_chapter_link}"
+        msg = f"Hi @{user[1]}! A new chapter has been released.\nRead it here: {latest_chapter_link}"
 
         req.post(f"https://api.telegram.org/bot{token}/sendMessage", json={"chat_id": user[2], "text": msg})
     
-    db_conn.add_chapter(chapter_id, chapter_title)
+    db_conn.add_chapter(last_chapter_id + 1, f"Chapter {last_chapter_id + 1}")
+
+    logger.info("Notified all users about new chapter and updated last_chapter_id.")
     
     return
+
+
+if __name__ == "__main__":
+    handle_updates()
+    check_for_new_chapter()
