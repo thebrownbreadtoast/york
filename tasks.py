@@ -13,6 +13,7 @@ from db import VegapunkDB
 load_dotenv("/Users/akshay.dadwal/work/vegapunk6969_bot/.env")
 
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
