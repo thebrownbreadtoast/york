@@ -16,12 +16,10 @@ def broadcast_message(message):
     users = db_conn.get_users()
 
     for user in users:
-        chat_id = user[2]
-
         url = f"https://api.telegram.org/bot{token}/sendMessage"
 
         payload = {
-            "chat_id": chat_id,
+            "chat_id": user[2],
             "text": f"Hi @{user[1]},\n{message}",
         }
 
