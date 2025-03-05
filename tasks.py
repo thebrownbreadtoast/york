@@ -3,6 +3,7 @@
 import logging
 import os
 import requests as req
+from bs4 import BeautifulSoup
 
 from datetime import datetime, timezone
 from dotenv import load_dotenv
@@ -88,6 +89,15 @@ def check_for_new_chapter():
 
     if response.status_code != 200:
         logger.info("No new chapter found.")
+
+        return
+
+    soup = BeautifulSoup(response.content, features="html.parser")
+
+    total_pages = len(soup.find("div", class_="entry-content").find("center").find_all("img"))
+
+    if not total_pages:
+        logger.info(f"Chapter {last_chapter_id + 1} not published yet.")
 
         return
 
