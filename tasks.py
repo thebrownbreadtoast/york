@@ -96,7 +96,8 @@ def check_for_new_chapter():
 
     total_pages = len(soup.find("div", class_="entry-content").find("center").find_all("img"))
 
-    if not total_pages:
+    if (total_pages > 5):
+	# Adding `> 5` as a safe-check, because sometimes publisher adds some random placeholder images.
         logger.info(f"Chapter {last_chapter_id + 1} not published yet.")
 
         return
