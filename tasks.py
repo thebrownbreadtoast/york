@@ -42,7 +42,12 @@ def handle_updates():
     updates = response.json()["result"]
 
     for update in updates:
-        timestamp = update["message"]["date"]
+        message = update.get("message")
+
+        if not message:
+            continue
+
+        timestamp = message["date"]
 
         if offset > timestamp:
             logger.warning(f"Skipping old event | {update}")
@@ -50,10 +55,10 @@ def handle_updates():
             continue
 
         try:
-            username = update["message"]["chat"]["username"]
-            chat_id = update["message"]["chat"]["id"]
+            username = message["chat"]["username"]
+            chat_id = message["chat"]["id"]
 
-            command = update["message"]["text"]
+            command = message["text"]
         except KeyError:
             continue
 
