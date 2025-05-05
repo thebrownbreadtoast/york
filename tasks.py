@@ -52,10 +52,10 @@ def handle_updates():
         try:
             username = update["message"]["chat"]["username"]
             chat_id = update["message"]["chat"]["id"]
+
+            command = update["message"]["text"]
         except KeyError:
             continue
-
-        command = update["message"]["text"]
 
         match command:
             case "/notify":
