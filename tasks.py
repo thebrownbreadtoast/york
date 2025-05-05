@@ -49,8 +49,11 @@ def handle_updates():
 
             continue
 
-        username = update["message"]["chat"]["username"]
-        chat_id = update["message"]["chat"]["id"]
+        try:
+            username = update["message"]["chat"]["username"]
+            chat_id = update["message"]["chat"]["id"]
+        except KeyError:
+            continue
 
         command = update["message"]["text"]
 
