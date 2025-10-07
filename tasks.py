@@ -1,4 +1,4 @@
-#!/Users/akshay.dadwal/work/vegapunk6969_bot/env/bin/python
+#!/Users/akshay.dadwal/work/york/env/bin/python
 
 import logging
 import os
@@ -8,10 +8,10 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
-from db import VegapunkDB
+from db import YorkDB
 
 
-load_dotenv("/Users/akshay.dadwal/work/vegapunk6969_bot/.env")
+load_dotenv("/Users/akshay.dadwal/work/york/.env")
 
 
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def handle_updates():
     logger.info("Processing Telegram bot events...")
 
-    db_conn = VegapunkDB()
+    db_conn = YorkDB()
 
     offset = db_conn.get_offset()[1]
 
@@ -85,7 +85,7 @@ def handle_updates():
 def check_for_new_chapter():
     logger.info("Checking for new chapter...")
 
-    db_conn = VegapunkDB()
+    db_conn = YorkDB()
 
     token = os.getenv("BOT_TOKEN")
 

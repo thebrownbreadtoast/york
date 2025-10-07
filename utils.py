@@ -2,14 +2,14 @@ import os
 import requests as req
 from dotenv import load_dotenv
 
-from db import VegapunkDB
+from db import YorkDB
 
 
-load_dotenv("/Users/akshay.dadwal/work/vegapunk6969_bot/.env")
+load_dotenv("/Users/akshay.dadwal/work/york/.env")
 
 
 def broadcast_message(message):
-    db_conn = VegapunkDB()
+    db_conn = YorkDB()
 
     token = os.getenv("BOT_TOKEN")
 

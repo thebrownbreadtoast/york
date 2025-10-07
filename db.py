@@ -3,7 +3,7 @@ import time
 import os
 
 
-class VegapunkDB:
+class YorkDB:
     def __init__(self):
         self.conn = sqlite3.connect(os.getenv("DB_PATH"))
 
